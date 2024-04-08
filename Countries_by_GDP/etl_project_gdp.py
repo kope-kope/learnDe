@@ -42,15 +42,15 @@ def extract():
 def transform_data(extracted_data):
      extracted_data["GDP_USD_billion"] = pd.to_numeric(extracted_data["GDP_USD_billion"], errors = 'coerce')/1000
      extracted_data["GDP_USD_billion"] = extracted_data["GDP_USD_billion"].round(2)
-     
-     return extracted_data
+     transformed_data = extracted_data
+     return transformed_data
 
 
 def load_data(target_file, transfromed_data):
     conn = sqlite3.connect(db_name)
-    extracted_data.to_sql(table_name, conn, if_exists='replace', index=False)
+    transformed_data.to_sql(table_name, conn, if_exists='replace', index=False)
     conn.close()
-    extracted_data.to_json(target_file)
+    transformed_data.to_json(target_file)
 
 
 def log_progress(message): 
