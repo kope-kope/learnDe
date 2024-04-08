@@ -39,8 +39,6 @@ def extract():
         df = pd.concat([df,df1], ignore_index=True)
     return df
 
-extract()
-
 def transform_data(extracted_data):
      extracted_data["GDP_USD_billion"] = pd.to_numeric(extracted_data["GDP_USD_billion"], errors = 'coerce')/1000
      extracted_data["GDP_USD_billion"] = extracted_data["GDP_USD_billion"].round(2)
