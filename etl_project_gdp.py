@@ -29,24 +29,26 @@ def extract():
         col = row.find_all('td')
         if col:
             country_name = col[0].find('a').text.strip()
-            GDP_str = col[2].text.strip().replace(',', ''
-                                                  )
-            try:
-                GDP_USD_billion = float(GDP_str)/1000 if GDP_str else np.nan
-            except ValueError:
-                GDP_USD_billion = np.nan
-
-            formatted_result = "{:.2f}".format(GDP_USD_billion) if not pd.isna(GDP_USD_billion) else GDP_str
+            GDP_str = col[2].text.strip().replace(',', '')
+           
             data_dict = {
             "Country": country_name,
-            "GDP_USD_billion" : formatted_result
+            "GDP_USD_billion" : GDP_str
         }
         df1 = pd.DataFrame(data_dict, index=[0])
         df = pd.concat([df,df1], ignore_index=True)
-
     return df
 
-def load_data(target_file, extracted_data):
+extract()
+
+def transform_data(extracted_data):
+     extracted_data["GDP_USD_billion"] = pd.to_numeric(extracted_data["GDP_USD_billion"], errors = 'coerce')/1000
+     extracted_data["GDP_USD_billion"] = extracted_data["GDP_USD_billion"].round(2)
+     
+     return extracted_data
+
+
+def load_data(target_file, transfromed_data):
     conn = sqlite3.connect(db_name)
     extracted_data.to_sql(table_name, conn, if_exists='replace', index=False)
     conn.close()
@@ -68,5 +70,11 @@ extracted_data = extract()
 
 log_progress("Extract phase Ended") 
 
+log_progress("Transfrom phase Started") 
+transformed_data = transform_data(extracted_data)
+log_progress("Transform phase Ended") 
+
+
 log_progress("Load phase Started") 
-load_data(target_file,extracted_data) 
+load_data(target_file,transformed_data) 
+log_progress("Load phase Ended") 
